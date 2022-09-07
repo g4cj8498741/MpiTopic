@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <title>charts</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" th:href="@{/resources/css/bootstrap.min.css}">
+    <script th:src="@{/resources/js/bootstrap.bundle.js}"></script>
+</head>
+
+<body>
+    <div class="container" style="max-width: 600px;">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        var path = window.location.pathname;
+        var webCtx = path.substring(0, path.indexOf('/', 1));
+        
+        axios({
+            method: 'post',
+            url: `${webCtx}/getcahrts`,
+        }).then(function (response) {
+            console.log(response.data.data);
+            const data = {
+            labels: response.data.labels,
+            datasets: [{
+                data: response.data.data,
+                backgroundColor: response.data.backgroundColor
+            }]
+        };
+            new Chart("myChart", {
+                type: "pie",
+                data: data,
+                options: {
+                    title: {
+                        display: true,
+                        text: "World Wide Wine Production"
+                    }
+                }
+            });
+
+        }).catch(function (error) {
+            console.log(error);
+        });
+
+
+    </script>
+</body>
+
+</html>

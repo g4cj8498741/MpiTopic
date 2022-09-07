@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>問題表單</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        .g-2 {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div id="form" class="container position-relative" style="max-width: 600px;">
+        <p style="text-align: center;">問題表單</p>
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="name" placeholder="name" v-model.lazy="name"
+                        @blur="checking">
+                    <label for="name">請輸入姓名</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating">
+                    <select class="form-select" id="gender" aria-label="Floating label select example" v-model="gender"
+                        @blur="checking">
+                        <!-- <option selected>選擇性別</option> -->
+                        <option value="1">男</option>
+                        <option value="2">女</option>
+                    </select>
+                    <label for="gender">請選擇性別</label>
+                </div>
+            </div>
+        </div>
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="phone" placeholder="phone" v-model="tel"
+                        @blur="checking">
+                    <label for="phone">請輸入電話</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="date" class="form-control" id="bir" placeholder="bir" v-model="bir" @blur="checking"
+                        :max="new Date().toISOString().split('T')[0]">
+                    <label for="bir">請輸入生日</label>
+                </div>
+            </div>
+        </div>
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="ards" placeholder="ards" v-model="ards"
+                        @blur="checking">
+                    <label for="ards">請輸入地址</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="email" class="form-control" id="email" placeholder="email" v-model="email"
+                        @blur="checking">
+                    <label for="email">請輸入電子信箱</label>
+                </div>
+            </div>
+        </div>
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating">
+                    <textarea class="form-control" placeholder="issue" id="issue" v-model="issue" style="height: 100px"
+                        @blur="checking"></textarea>
+                    <label for="issue">留下你的意見</label>
+                </div>
+            </div>
+        </div>
+        <div class="row g-2">
+            <div class="col-md" style="text-align: center;">
+                <input type="button" id="submit" v-on:click="submit" value="送出表單">
+            </div>
+        </div>
+        <button class="btn btn-primary position-absolute top-50 start-50 translate-middle" type="button" disabled
+            style="opacity:1" v-if="load">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Loading...
+        </button>
+    </div>
+
+
+    <script>
+        var path = window.location.pathname;
+        var webCtx = path.substring(0, path.indexOf('/', 1));
+        let form = new Vue({
+            el: "#form",
+            data: {
+                name: "",
+                gender: 1,
+                tel: "",
+                bir: new Date().toISOString().split('T')[0],
+                ards: "",
+                email: "",
+                issue: "",
+                load: false
+            },
+            methods: {
+                submit: function () {
+                    //console.log(JSON.stringify(this.message))
+                    if (document.getElementsByClassName('is-valid').length === 7) {
+                        this.load = true
+                        axios({
+                            method: 'post',
+                            url: `${webCtx}/add`,
+                            data: {
+                                'name': this.name,
+                                'gender': this.gender,
+                                'tel': this.tel,
+                                'bir': this.bir,
+                                'ards': this.ards,
+                                'email': this.email,
+                                'issue': this.issue
+                            }
+                        }).then(function (response) {
+                            form.load = false;
+                            console.log(response.data);
+                            window.location.href = `${webCtx}/${response.data}`;
+                        }).catch(function (error) {
+                            console.log(error);
+                        });
+                    }
+                },
+                checking: function (e) {
+                    let element = e.target;
+                    console.log(element)
+                    if (element.value === '' && !Number(element.value)) {
+                        element.classList.add("is-invalid");
+                        element.classList.remove("is-valid");
+                    } else {
+                        element.classList.add("is-valid");
+                        element.classList.remove("is-invalid");
+                    }
+                },
+                
+            },
+        })
+        function formatDate() {
+            const date = new Date();
+            return [
+                date.getFullYear(),
+                (date.getMonth() + 1).toString().padStart(2, '0'),
+                date.getMonth().toString().padStart(2, '0'),
+            ].join('-');
+        }
+    </script>
+</body>
+
+</html>

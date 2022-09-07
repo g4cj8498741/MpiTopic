@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>listAll</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        .table tbody tr td {
+            vertical-align: middle;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="app" class="container">
+
+        <div class="row g-2">
+            <div class="col-md" style="text-align: center;">
+                <a class="btn btn-primary" th:href="@{/}" role="button">填寫問題單</a>
+                <a class="btn btn-primary" th:href="@{/charts}" role="button">查看圓餅圖</a>
+            </div>
+        </div>
+        <table class="table" style="word-wrap: break-all; word-break: break-all;">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">姓名</th>
+                    <th scope="col">電話</th>
+                    <th scope="col">信箱</th>
+                    <th scope="col">地址</th>
+                    <th scope="col">生日</th>
+                    <th scope="col" class="text-nowrap">性別</th>
+                    <th scope="col" style="width: 30%">內容</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(contact,index) in listAll">
+                    <td scope="row">{{index + 1}}</td>
+                    <td >{{contact.name}}</td>
+                    <td >{{contact.tel}}</td>
+                    <td >{{contact.email}}</td>
+                    <td >{{contact.ards}}</td>
+                    <td >{{contact.bir}}</td>
+                    <td v-if="contact.gender == 1">男</td>
+                    <td v-if="contact.gender == 2">女</td>
+                    <td >{{contact.issue}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const path = window.location.pathname;
+        const webCtx = path.substring(0, path.indexOf('/', 1));
+        let app = new Vue({
+            el: "#app",
+            data: {
+                listAll:''
+            },
+            created() {
+                axios({
+                    method: 'post',
+                    url: `${webCtx}/getall`,
+                }).then(function (response) {
+
+                    console.log(response.data);
+                    app.listAll = response.data;
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            }
+        })
+    </script>
+</body>
+
+</html>
